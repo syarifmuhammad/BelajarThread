@@ -6,10 +6,11 @@ public class ThreadPertama implements Runnable{
 
     private int awal;
     private int setAwal;
-    private int penambahan = 2;
+    private int penambahan;
     public ThreadPertama(int awal) {
         this.awal = awal;
         this.setAwal = awal;
+        this.penambahan = Main.jumlahThread;
     }
 
     @Override
@@ -17,12 +18,13 @@ public class ThreadPertama implements Runnable{
         class Letter {
             public int i = awal;
             private String[] abjad = {
-                    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+                    " ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
                     "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
-                    "w", "x", "y", "z"
+                    "w", "x", "y", "z",
+//                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
             };
             public int increment(){
-                if(this.i + penambahan > 25){
+                if(this.i + penambahan > this.abjad.length-1){
                     this.i = awal;
                     return 1;
                 }else{
@@ -32,10 +34,10 @@ public class ThreadPertama implements Runnable{
             }
 
             public String get(){
-                if(i<=25){
+                if(i<=this.abjad.length-1){
                     return this.abjad[this.i];
                 }else{
-                    return "a";
+                    return this.abjad[0];
                 }
             }
         }
@@ -72,20 +74,18 @@ public class ThreadPertama implements Runnable{
         Word word = new Word();
         System.out.println("Masih mencari ...");
         int i = 0;
-        while(!Main.pass.equals(word.get())) {
-//            if(i==0){
-                awal = setAwal;
-                penambahan = 2;
-//                System.out.println("harus kembali ke awal");
-//            }
+        while(!Thread.interrupted() &&!Main.pass.equals(word.get())) {
+            awal = setAwal;
+            penambahan = Main.jumlahThread;
             word.increment();
-//            System.out.println(word.get());
-//            System.out.println("hasil : ini thread " + awal + " " + word.get());
             i++;
         }
-        System.out.println("Pencarian Selesai dengan hasil : " + word.get());
-            Main.s.stop();
-            Main.s2.stop();
+        if(Main.pass.equals(word.get())) {
+            System.out.println("Pencarian Selesai dengan hasil : " + word.get());
+            for(var j=0; j<Main.jumlahThread; j++){
+                Main.kumpulanThread.get(j).interrupt();
+            }
+        }
     }
 }
 
